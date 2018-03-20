@@ -2,27 +2,29 @@ package opg2;
 
 import java.awt.Color;
 import java.util.Random;
-import java.util.HashMap;
 import java.util.Scanner;
+import java.io.File;
+import java.io.IOException;
+
 
 public class Mandelbrot {
 
-	private static final int MAX = 255;
-	private static final int Grid = 1024;
-	private static double Slength = 2 ;
-	private static double x0 = -0.5;
-	private static double y0 = 0;
-	private static HashMap<Integer, Color> hashMap= new HashMap<Integer, Color>();
-	//private static Scanner console = new Scanner(System.in);
+	private static final int MAX = 255; // Keep at 255. Quality of calculation & Color size (255 Colors)
+	private static final int Grid = 200; // Amount of points in sLength*sLength square. Smaller values = Faster calculation
+	private static double Slength = 2 ; // Side length. 2 captures first mandelbrot.
+	private static double x0 = -0.5; // Start position X Coordinate
+	private static double y0 = 0; //  Start position Y Coordinate
+	private static int[][] ColorData = new int[256][3]; // Color data stored as 255*3 Array. Could change to Color[255] Array.
+	private static final String filename = "mnd/volcano.mnd"; // Files have to be kept in top of working directory in Eclipse.
 	
-	public static void main(String[] args) {
-		StdDraw.setCanvasSize(1000,1000);
+	private static final boolean FileColor = false; // Use file color, if false use random color.
+	
+	public static void main(String[] args) throws IOException{
+		StdDraw.setCanvasSize(1000,1000); 
 		StdDraw.show(0);
-		for (int i= 0; i < 255; i++) {
-			hashMap.put(i, RandColor());
-		}
-		DrawMandelbrot();
-		for (int i = 0; i < 100;) {
+		GetColorData(); // Extract or generate color data.
+		DrawMandelbrot(); // Draw our first mandelbrot
+		for (int i = 0; i < 100;) {						// Allows user to zoom in 100 times.
 			if (StdDraw.mousePressed()) {
 				StdDraw.clear();
 				x0 = StdDraw.mouseX();
@@ -34,19 +36,35 @@ public class Mandelbrot {
 		}
 	}
 	
-//	public static void menu() {
-//		if (console.hasNextInt()) {
-//			Grid = Math.abs(console.nextInt());
-//		}
-//		else {
-//			System.out.print("Grid can only be integer values.");
-//			return;
-//		}
-//	}
+	public static void GetColorData() throws IOException { // Function open file for color data, or generates it.
+		if (FileColor) { // Open file for colors
+			Scanner file = new Scanner(new File(filename));
+			int i = 1;
+			while(file.hasNext() && i < 255) {
+				ColorData[i][0] = file.nextInt();
+				ColorData[i][1] = file.nextInt();
+				ColorData[i][2] = file.nextInt();
+				i++;
+			}
+			file.close();
+		}
+		else {	// Generate color data from HSV Gradient. (Cleaner results then random RGB Values)
+			Random random = new Random()	;
+			float hue = random.nextFloat();	// Random starting point
+			final float saturation = 0.25f; // 0.25f give nice pastel colors.
+			final float luminance = 1.0f;  // 1.0f
+			for (int i= 0; i < 255; i++) {
+				Color color = Color.getHSBColor(hue, saturation, luminance);
+				ColorData[i][0] = color.getRed();
+				ColorData[i][1] = color.getBlue();
+				ColorData[i][2] = color.getGreen();
+				hue += 0.01f;
+				
+			}
+		}
+	}
 	
-	
-	
-	public static int iterate(Complex z0) {
+	public static int iterate(Complex z0) { // Function supplied by assignment
 		Complex z = new Complex(z0);
 		for (int i = 0; i < MAX; i++) {
 			if (z.abs() > 2.0) {
@@ -57,36 +75,28 @@ public class Mandelbrot {
 		return MAX;
 		}
 	
-	public static Color RandColor() {
-		//to get rainbow, pastel colors
-		Random random = new Random();
-		final float hue = random.nextFloat();
-		final float saturation = 0.9f;//1.0 for brilliant, 0.0 for dull
-		final float luminance = 1.0f; //1.0 for brighter, 0.0 for black
-		Color color = Color.getHSBColor(hue, saturation, luminance);
-		return color;
-	}
-	
-	public static void DrawMandelbrot() {
-		StdDraw.setXscale(-Slength/2+x0,Slength/2+x0);
-		StdDraw.setYscale(-Slength/2+y0,Slength/2+y0);
-		double step = ((double)(Slength)/(Grid-1.0));;
+	public static void DrawMandelbrot() { 					// Draw the mandelbrot image.
+		StdDraw.setXscale(-Slength/2+x0,Slength/2+x0); 			
+		StdDraw.setYscale(-Slength/2+y0,Slength/2+y0);			// We refresh X/Y Scale, in case sLength changes as we zoom.
+		double step = ((double)(Slength)/(Grid-1.0));;		// Step size between grid points.
 		for(double j = 0; j <= Slength; j += step) {
 			double x = x0 - Slength/2 + j;
-			for(double k = 0; k <= Slength; k += step) {
+			for(double k = 0; k <= Slength; k += step) { 		// Iterate through every point in our square.
 				double y = y0 - Slength/2 + k;
-				int iter = iterate(new Complex(x,y));
-				if (iter==MAX) {
+				int iter = iterate(new Complex(x,y));			// Find iterate value of point
+				if (iter==MAX) {								// If point is == MAX, its part of the mandelbrot.
 					//System.out.println(x+" "+y);
 					StdDraw.setPenColor(StdDraw.BLACK);
 					StdDraw.filledCircle(x, y, step/2);
 				}
-				else {
-					StdDraw.setPenColor(hashMap.get(iter));
+				else {											// Else we can color it depending on how close it is to MAX
+					//StdDraw.setPenColor(hashMap.get(iter));
+					StdDraw.setPenColor(ColorData[iter][0], ColorData[iter][1], ColorData[iter][2]);
 					StdDraw.filledCircle(x, y, step/2);
 				}
 			}
+			
 		}
-		StdDraw.show(0);
+		StdDraw.show(0);										// Show the new drawing (Neccesary to keep computing time low)
 	}
 }
