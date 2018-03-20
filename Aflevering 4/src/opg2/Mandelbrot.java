@@ -13,7 +13,7 @@ public class Mandelbrot {
 	private static double x0 = -0.5;
 	private static double y0 = 0;
 	private static HashMap<Integer, Color> hashMap= new HashMap<Integer, Color>();
-	private static Scanner console = new Scanner(System.in);
+	//private static Scanner console = new Scanner(System.in);
 	
 	public static void main(String[] args) {
 		StdDraw.setCanvasSize(1000,1000);
