@@ -1,80 +1,106 @@
 package opg3;
 
 
-import java.util.*;
 
+import java.awt.Color;
+import java.util.*;
+import java.io.*;
 
 import opg2.StdDraw;
 
 public class GameOfLife {
 	// Spille array.
-	private boolean [][][] GameArray;
-	private boolean [][][] nextGameArray;
-	// Array Const;
-	private static final int aLive = 0;
-	private static final int aLone = 1;
-	private static final int aSpace = 2;
-	private static final int aGen = 3;
-	private int gamesize;
+	private CellData [][] GameArray;
 
+
+	private int gamesizeX;
+	private int gamesizeY;
+	private int CountLiveCells = 0;
+	private int CountLiveCellsPre = 0;
+	private boolean[][] initialState;
+	private boolean CustominitialState = false;
+	private boolean GameReady = false;
 	
+	public boolean GameReady() {
+		return GameReady;
+	}
 	public GameOfLife(int n) {
+		
 		// Spille størrelse.
-		gamesize = n;
+		gamesizeX = (n);
+		gamesizeY = (n);
 		
 		// Initialisere spil.
 		iniGame();
-
+		GameReady = true;
 	}
-	
-	public GameOfLife(boolean[][] initialState) {
 
+	
+
+	
+	public GameOfLife(boolean[][] initialStated) {
+		// Spille størrelse.
+		gamesizeX = initialStated.length;
+		gamesizeY = initialStated[0].length;
+		
+		// Overfør celle status.
+		this.initialState = initialStated;
+		
+		this.CustominitialState = true;
+		
+		// Initialisere spil.
+		iniGame();
+		
+		GameReady = true;
 	}
 	
 	public void nextState() {
-			
+		this.CountLiveCells = this.CountLiveCellsPre;
+		
 		// Kør spilleregler.
-		nextGameArray = GameRule();
+		GameRule();
 		
 		// Tegn spil.
 		DrawGame();
-		GameArray = nextGameArray;
+	
+	}
+	
+	public int GetNoCells() {
+		return this.CountLiveCells;
 	}
 	
 	// Køre spilleregler
-	private boolean [][][] GameRule() {
+	private  void GameRule() {
 		int liveNeighboursCell = 0;
 		
 		// Kør y-rækken. 
 		for (int y=0; y<= GameArray[1].length - 1; y++) {
 			
 			// Kør x-rækken.
-			for (int x=0; x<= GameArray[0].length - 1; x++) {
+			for (int x=0; x<= GameArray.length - 1; x++) {
+				
 				// Antal levende naboceller.
 				liveNeighboursCell = liveNeighbours(x,y);
 				
 				// Celle dør af ensomhed, hvis der er mindre end 2 levende naboceller.
-				if (liveNeighboursCell < 2) {
-					nextGameArray[x][y][aLive] = false;
-					GameArray[x][y][aLone] = true;
-					System.out.println(x + " " + y + " - " + "ensom");
+				if (liveNeighboursCell < 2 && GameArray[x][y].IsAlive()) {
+					GameArray[x][y].SetAlone();
+					//System.out.println(x + " " + y + " - " + "ensom");
 				}
 				
 				// Celle dør af pladsmangel, hvis der er mere end 3 levende naboceller.
-				else if (liveNeighboursCell > 3) {
-					nextGameArray[x][y][aLive] = false;
-					GameArray[x][y][aSpace] = true;
-					System.out.println(x + " " + y + " - " + "plads");
+				else if (liveNeighboursCell > 3 && GameArray[x][y].IsAlive()) {
+					GameArray[x][y].SetSpace();
+					//System.out.println(x + " " + y + " - " + "plads");
 				}
 				
 				// Celler genopliver, hvis den er død og der er mere end 3 levende naboceller.
-				else if (liveNeighboursCell == 3 && !GameArray[x][y][aLive]) {
-					nextGameArray[x][y][aLive] = true;
-					GameArray[x][y][aGen] = true;
-					System.out.println(x + " " + y + " - " + "gen");
+				else if (liveNeighboursCell == 3 && !GameArray[x][y].IsAlive()) {
+					GameArray[x][y].SetResus();
+				//	System.out.println(x + " " + y + " - " + "gen");
 				}
 				else {
-					System.out.println(x + " " + y + " - " + "ok");
+					//System.out.println(x + " " + y + " - " + "ok");
 				}
 				
 		
@@ -82,8 +108,6 @@ public class GameOfLife {
 			
 	
 		}
-		// Erstatter det tidligere spil med det nye.
-		return nextGameArray;
 		
 		
 	}
@@ -96,15 +120,15 @@ public class GameOfLife {
 		// Kontrollér venstre nabo.
 		if (x-1 >= 0) {
 			// Hvis celle er levende.
-			if (GameArray[x-1][y][aLive]) {
+			if (GameArray[x-1][y].IsAlive()) {
 				livecount ++;	
 			}
 		}
 		
 		// Kontrollér højre nabo.
-		if (x+1 <= GameArray[0].length - 1) {
+		if (x+1 <= GameArray.length - 1) {
 			// Hvis celle er levende
-			if (GameArray[x+1][y][aLive]) {
+			if (GameArray[x+1][y].IsAlive()) {
 				livecount ++;	
 			}
 		}
@@ -112,7 +136,7 @@ public class GameOfLife {
 		// Kontrollér oppe nabo.
 		if (y-1 >= 0) {
 			// Hvis celle er levende.
-			if (GameArray[x][y-1][aLive]) {
+			if (GameArray[x][y-1].IsAlive()) {
 				livecount ++;	
 			}
 		}
@@ -120,7 +144,7 @@ public class GameOfLife {
 		// Kontrollér nede nabo.
 		if (y+1 <= GameArray[1].length - 1) {
 			// Hvis celle er levende.
-			if (GameArray[x][y+1][aLive]) {
+			if (GameArray[x][y+1].IsAlive()) {
 				livecount ++;	
 			}
 		}
@@ -128,23 +152,23 @@ public class GameOfLife {
 		// Kontrollér skråt-venstre-oppe nabo.
 		if (x-1 >= 0 && y-1 >=0) {
 			// Hvis celle er levende.
-			if (GameArray[x-1][y-1][aLive]) {
+			if (GameArray[x-1][y-1].IsAlive()) {
 				livecount ++;	
 			}
 		}
 		
 		// Kontrollér skråt-højre-oppe nabo.
-		if (x+1 <= GameArray[0].length - 1 && y-1 >=0) {
+		if (x+1 <= GameArray.length - 1 && y-1 >=0) {
 			// Hvis celle er levende.
-			if (GameArray[x+1][y-1][aLive]) {
+			if (GameArray[x+1][y-1].IsAlive()) {
 				livecount ++;	
 			}
 		}
 		
 		// Kontrollér skråt-højre-nede nabo.
-		if (x+1 <= GameArray[0].length - 1 && y+1 <= GameArray[1].length - 1) {
+		if (x+1 <= GameArray.length - 1 && y+1 <= GameArray[1].length - 1) {
 			// Hvis celle er levende.
-			if (GameArray[x+1][y+1][aLive]) {
+			if (GameArray[x+1][y+1].IsAlive()) {
 				livecount ++;	
 			}
 		}
@@ -152,7 +176,7 @@ public class GameOfLife {
 		// Kontrollér skråt-venstre-nede nabo.
 		if (x-1 >= 0 && y+1 <= GameArray[1].length - 1) {
 			// Hvis celle er levende.
-			if (GameArray[x-1][y+1][aLive]) {
+			if (GameArray[x-1][y+1].IsAlive()) {
 				livecount ++;	
 			}
 		}
@@ -165,87 +189,142 @@ public class GameOfLife {
 	
 	// Initialisere spil.
 	private void iniGame() {
-
+		
 		CreateGameArray();
 
 		//StdDraw.setPenColor(StdDraw.WHITE); // Draw Race course edges and player.
-		StdDraw.setCanvasSize(300,300);
+		StdDraw.setCanvasSize(600,600);
 		StdDraw.setScale(-1, 1);
-		//StdDraw.setYscale(-1,1);
-		//StdDraw.setXscale(-(GameArray[0].length * CircleSize + (GameArray[0].length-1) * CircleSize)/2, (GameArray[0].length * CircleSize + (GameArray[0].length-1) * CircleSize)/2);
-		//StdDraw.setYscale(-(GameArray[1].length * CircleSize + (GameArray[1].length-1) * CircleSize)/2, (GameArray[1].length * CircleSize + (GameArray[1].length-1) * CircleSize)/2);
-		//StdDraw.setCanvasSize(1000, CircleSize * 200);
-		//StdDraw.clear();
-		//GameArray[0][0] = true;
-		//StdDraw.setXscale(-10,10);
-		//StdDraw.setYscale(-10,10); 
+		
+ 
+		StdDraw.show(500);
 		// Kør spilleregler.
-		nextGameArray = GameRule();
+		GameRule();
 		DrawGame();
-		GameArray = nextGameArray;
+		//GameArray = nextGameArray;
+	}
+	
+
+	// Returnere farven som cellen skal have.
+	private Color GetCellColor(byte status) {
+	
+
+		if (status == 2) {
+			return StdDraw.RED;
+		}
+		
+		else if (status == 1) {
+			return StdDraw.BLUE;
+		}
+		
+		else if (status == 3) {
+			return StdDraw.GREEN;
+		}
+		else {
+			return StdDraw.BLACK;
+		}
+
+		
+	}
+	
+	// Genopliv celle.
+	private void ResuscitateCell(int x, int y){
+		GameArray[x][y].ResuscitateCell();
+		this.CountLiveCellsPre ++;
+	}
+	// Dræb celle.
+	private void KillCell(int x, int y){
+		GameArray[x][y].KillCell();
+		this.CountLiveCellsPre --;
 	}
 	
 	// Tegner levende celler.
 	private void DrawGame() {
 		StdDraw.clear();
-		double Step=1.0/gamesize;
+		double StepX=1.0/gamesizeX;
+		double StepY=1.0/gamesizeY;
+		double CircleR = StepY;
+		this.CountLiveCellsPre = this.CountLiveCells;
 		
-		double xCoor = -1.0 + Step;
-		double yCoor= 1 - Step;
+		// Cirkel radius.
+		if (StepX < StepY) {
+			CircleR = StepX;
+			
+		}
 		
-		StdDraw.setPenColor(StdDraw.BLACK);
+		double xCoor = -1.0 + StepX;
+		double yCoor= 1 - StepY;
+		boolean DrawNextStatus = false;
+	
 		
 		// Kør y-rækken. 
 		for (int y=0; y<= GameArray[1].length - 1; y++) {
 			
 			// Kør x-rækken.
-			for (int x=0; x<= GameArray[0].length - 1; x++) {
+			for (int x=0; x<= GameArray.length - 1; x++) {
 				
 				
+				DrawNextStatus = false;
 				
-				if (GameArray[x][y][aSpace]) {
-					StdDraw.setPenColor(StdDraw.RED);
+				// Henter farve ud fra celle status.
+				StdDraw.setPenColor(GetCellColor(GameArray[x][y].GetNextMove()));
+				
+				if (GameArray[x][y].IsSpace() || GameArray[x][y].IsAlone()) {
+					DrawNextStatus = true;
+					KillCell(x,y);
+				}
+	
+				
+				if (GameArray[x][y].IsResus()) {
+					DrawNextStatus = true;
+					ResuscitateCell(x,y);
+				}
+				//StdDraw.filledCircle(xCoor, yCoor, CircleR);	
+				// Tegn celle.
+				if (GameArray[x][y].IsAlive() || DrawNextStatus == true) {
+					StdDraw.filledCircle(xCoor, yCoor, CircleR);	
 				}
 				
-				if (GameArray[x][y][aLone]) {
-					StdDraw.setPenColor(StdDraw.BLUE);
-				}
-				
-				if (GameArray[x][y][aGen]) {
-					StdDraw.setPenColor(StdDraw.GREEN);
-				}
-				// Tegn celle, hvis den er levende.
-				if (GameArray[x][y][aLive]) {
-					StdDraw.filledCircle(xCoor, yCoor, Step);	
-				}
-				
-				xCoor += 2*Step;
+				xCoor += 2*StepX;
 			}
 			
-			yCoor += -2*Step;
-			xCoor = -1.0 + Step;
+			yCoor += -2*StepY;
+			
+			xCoor = -1.0 + StepX;
 		}
 		
+		StdDraw.show(500);
 		
-
 	}
 	
-	// Sætter størrelse af spil array og alle celler til levende.
+	// Laver spil.
 	private void CreateGameArray() {
+		boolean Kill;
+		
 		// Sætter størrelsen af GameArray.
-		this.GameArray = new boolean[gamesize][gamesize][4];
-		this.nextGameArray = new boolean[gamesize][gamesize][4];
+		this.GameArray = new CellData [gamesizeX][gamesizeY];
+		// Antal levende celler.
+		this.CountLiveCells = gamesizeX * gamesizeY;
+
 		
 		// Tilfældig konstruktør.
 		Random r = new Random();
 		
 		// Kør y-rækken. 
-		for (int y=0; y<= GameArray[1].length - 1; y++) {
+		for (int y=0; y<= GameArray[0].length - 1; y++) {
 			
 			// Kør x-rækken.
-			for (int x=0; x<= GameArray[0].length - 1; x++) {
+			for (int x=0; x<= GameArray.length - 1; x++) {
+
+				Kill = this.CustominitialState ? !this.initialState[x][y] : r.nextBoolean();
+				this.GameArray[x][y] = new CellData();
+				
+				// Hvis celle skal dø.
+				if (Kill) {
 				// Sætter tilfældige celler til levende og døde.
-				this.GameArray[x][y][aLive] = r.nextBoolean();
+					GameArray[x][y].KillCell();
+					this.CountLiveCells --;
+				}
 			}
 			
 		}

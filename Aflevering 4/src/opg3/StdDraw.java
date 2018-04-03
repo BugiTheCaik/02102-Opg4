@@ -1,4 +1,5 @@
 /*************************************************************************
+
  *  Compilation:  javac StdDraw.java
  *  Execution:    java StdDraw
  *
@@ -22,7 +23,7 @@
  *       it can cause flicker
  *
  *************************************************************************/
-
+package opg3;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
