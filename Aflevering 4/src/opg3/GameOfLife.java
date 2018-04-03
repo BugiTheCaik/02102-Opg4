@@ -30,9 +30,16 @@ public class GameOfLife {
 		gamesizeX = (n);
 		gamesizeY = (n);
 		
-		// Initialisere spil.
-		iniGame();
-		GameReady = true;
+		if (n > 0) {
+			// Initialisere spil.
+			iniGame();
+			GameReady = true;	
+		}
+		else {
+			
+			GameReady = false;
+		}
+		
 	}
 
 	
@@ -85,22 +92,16 @@ public class GameOfLife {
 				// Celle dør af ensomhed, hvis der er mindre end 2 levende naboceller.
 				if (liveNeighboursCell < 2 && GameArray[x][y].IsAlive()) {
 					GameArray[x][y].SetAlone();
-					//System.out.println(x + " " + y + " - " + "ensom");
 				}
 				
 				// Celle dør af pladsmangel, hvis der er mere end 3 levende naboceller.
 				else if (liveNeighboursCell > 3 && GameArray[x][y].IsAlive()) {
 					GameArray[x][y].SetSpace();
-					//System.out.println(x + " " + y + " - " + "plads");
 				}
 				
 				// Celler genopliver, hvis den er død og der er mere end 3 levende naboceller.
 				else if (liveNeighboursCell == 3 && !GameArray[x][y].IsAlive()) {
 					GameArray[x][y].SetResus();
-				//	System.out.println(x + " " + y + " - " + "gen");
-				}
-				else {
-					//System.out.println(x + " " + y + " - " + "ok");
 				}
 				
 		
