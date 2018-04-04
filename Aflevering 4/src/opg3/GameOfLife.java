@@ -193,16 +193,16 @@ public class GameOfLife {
 		
 		CreateGameArray();
 
-		//StdDraw.setPenColor(StdDraw.WHITE); // Draw Race course edges and player.
-		StdDraw.setCanvasSize(600,600);
+		StdDraw.setCanvasSize(800,800);
 		StdDraw.setScale(-1, 1);
 		
  
 		StdDraw.show(500);
+		
 		// Kør spilleregler.
 		GameRule();
 		DrawGame();
-		//GameArray = nextGameArray;
+
 	}
 	
 
@@ -242,6 +242,7 @@ public class GameOfLife {
 	// Tegner levende celler.
 	private void DrawGame() {
 		StdDraw.clear();
+		
 		double StepX=1.0/gamesizeX;
 		double StepY=1.0/gamesizeY;
 		double CircleR = StepY;
@@ -280,7 +281,7 @@ public class GameOfLife {
 					DrawNextStatus = true;
 					ResuscitateCell(x,y);
 				}
-				//StdDraw.filledCircle(xCoor, yCoor, CircleR);	
+
 				// Tegn celle.
 				if (GameArray[x][y].IsAlive() || DrawNextStatus == true) {
 					StdDraw.filledCircle(xCoor, yCoor, CircleR);	

@@ -15,10 +15,12 @@ public class GameOfLifeMain {
 
 		
 		// Hvis et fastsat spil vælges.
-		GameData = new GameOfLife(3);
+		GameData = new GameOfLife(30);
 		
 		
 		/**
+		 
+		
 		// Hvis spillefil skal indlæses.
 		GetFileInfo g = new GetFileInfo();
 		
