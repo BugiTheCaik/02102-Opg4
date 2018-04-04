@@ -13,6 +13,10 @@ public class ArtikelTest {
 		artikelA.setReferenceliste(new Artikel[] {artikelB});
 		
 		System.out.println(artikelA.toString()); // toString
+		System.out.println(artikelB.toString());
+		System.out.println(Brain.toString());
+		System.out.println(UniversityPress.toString());
+		System.out.println(Journal.toString());
 
 	}
 

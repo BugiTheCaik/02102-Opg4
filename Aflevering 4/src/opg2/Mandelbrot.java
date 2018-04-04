@@ -10,12 +10,12 @@ import java.io.IOException;
 public class Mandelbrot {
 
 	private static final int MAX = 255; // Keep at 255. Quality of calculation & Color size (255 Colors)
-	private static final int Grid = 200; // Amount of points in sLength*sLength square. Smaller values = Faster calculation
+	private static final int Grid = 1024; // Amount of points in sLength*sLength square. Smaller values = Faster calculation
 	private static double Slength = 2 ; // Side length. 2 captures first mandelbrot.
 	private static double x0 = -0.5; // Start position X Coordinate
 	private static double y0 = 0; //  Start position Y Coordinate
 	private static int[][] ColorData = new int[256][3]; // Color data stored as 255*3 Array. Could change to Color[255] Array.
-	private static final String filename = "mnd/volcano.mnd"; // Files have to be kept in top of working directory in Eclipse.
+	private static final String filename = "mnd/blues.mnd"; // Files have to be kept in working directory in Eclipse.
 	
 	private static final boolean FileColor = false; // Use file color, if false use random color.
 	
@@ -51,14 +51,14 @@ public class Mandelbrot {
 		else {	// Generate color data from HSV Gradient. (Cleaner results then random RGB Values)
 			Random random = new Random()	;
 			float hue = random.nextFloat();	// Random starting point
-			final float saturation = 0.25f; // 0.25f give nice pastel colors.
+			final float saturation = 0.25f; // Default (0.25f, 1.0f) values give nice pastel gradient.
 			final float luminance = 1.0f;  // 1.0f
 			for (int i= 0; i < 255; i++) {
 				Color color = Color.getHSBColor(hue, saturation, luminance);
 				ColorData[i][0] = color.getRed();
 				ColorData[i][1] = color.getBlue();
 				ColorData[i][2] = color.getGreen();
-				hue += 0.01f;
+				hue += 0.005f;				// Step between each color. Smal
 				
 			}
 		}
@@ -85,18 +85,16 @@ public class Mandelbrot {
 				double y = y0 - Slength/2 + k;
 				int iter = iterate(new Complex(x,y));			// Find iterate value of point
 				if (iter==MAX) {								// If point is == MAX, its part of the mandelbrot.
-					//System.out.println(x+" "+y);
 					StdDraw.setPenColor(StdDraw.BLACK);
 					StdDraw.filledCircle(x, y, step/2);
 				}
 				else {											// Else we can color it depending on how close it is to MAX
-					//StdDraw.setPenColor(hashMap.get(iter));
 					StdDraw.setPenColor(ColorData[iter][0], ColorData[iter][1], ColorData[iter][2]);
 					StdDraw.filledCircle(x, y, step/2);
 				}
 			}
-			
+			StdDraw.show(0); // Consider this during long computations
 		}
-		StdDraw.show(0);										// Show the new drawing (Neccesary to keep computing time low)
+		//StdDraw.show(0);										// Show the new drawing (Neccesary to keep computing time low)
 	}
 }

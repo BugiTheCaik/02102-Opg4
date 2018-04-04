@@ -20,8 +20,11 @@ public class Artikel {
 	
 	public String toString() {
 		String str1 = "";
-		for (int x = 0; x < this.referenceliste.length; x++) {
+		System.out.println("length: " + this.referenceliste.length);
+		if(this.referenceliste.length != 0) {
+			for (int x = 0; x < this.referenceliste.length; x++) {
 			str1 += this.referenceliste[x].titel;
+			}
 		}
 		return "Forfattere: " + String.join(", ", this.forfattere) + "\nTitel: " + this.titel + "\n" + this.tidskrift.toString() + "\nReferencer: " + str1;
 	}
