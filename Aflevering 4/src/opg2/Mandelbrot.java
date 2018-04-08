@@ -10,21 +10,21 @@ import java.io.IOException;
 public class Mandelbrot {
 
 	private static final int MAX = 255; // Keep at 255. Quality of calculation & Color size (255 Colors)
-	private static final int Grid = 1024; // Amount of points in sLength*sLength square. Smaller values = Faster calculation
+	private static final int Grid = 255; // Amount of points in sLength*sLength square. Smaller values = Faster calculation
 	private static double Slength = 2 ; // Side length. 2 captures first mandelbrot.
 	private static double x0 = -0.5; // Start position X Coordinate
 	private static double y0 = 0; //  Start position Y Coordinate
 	private static int[][] ColorData = new int[256][3]; // Color data stored as 255*3 Array. Could change to Color[255] Array.
 	private static final String filename = "mnd/blues.mnd"; // Files have to be kept in working directory in Eclipse.
 	
-	private static final boolean FileColor = false; // Use file color, if false use random color.
+	private static final boolean FileColor = true; // Use file color, if false use random color.
 	
 	public static void main(String[] args) throws IOException{
 		StdDraw.setCanvasSize(1000,1000); 
 		StdDraw.show(0);
 		GetColorData(); // Extract or generate color data.
 		DrawMandelbrot(); // Draw our first mandelbrot
-		for (int i = 0; i < 100;) {						// Allows user to zoom in 100 times.
+		for (int i = 0; i < 100;) {						// Allows user to zoom in 100 times (Arbitrary number, never zoomed more than 50 times)
 			if (StdDraw.mousePressed()) {
 				StdDraw.clear();
 				x0 = StdDraw.mouseX();
@@ -75,9 +75,14 @@ public class Mandelbrot {
 		return MAX;
 		}
 	
+	public static void OutputSettings() {
+		System.out.println("Position: (" + x0 + "," + y0 + ")\nSide length: " + Slength + "\nGrid Size: " + Grid + "\nMAX value: " + MAX);
+	}
+	
 	public static void DrawMandelbrot() { 					// Draw the mandelbrot image.
 		StdDraw.setXscale(-Slength/2+x0,Slength/2+x0); 			
 		StdDraw.setYscale(-Slength/2+y0,Slength/2+y0);			// We refresh X/Y Scale, in case sLength changes as we zoom.
+		OutputSettings();
 		double step = ((double)(Slength)/(Grid-1.0));;		// Step size between grid points.
 		for(double j = 0; j <= Slength; j += step) {
 			double x = x0 - Slength/2 + j;
@@ -93,7 +98,7 @@ public class Mandelbrot {
 					StdDraw.filledCircle(x, y, step/2);
 				}
 			}
-			StdDraw.show(0); // Consider this during long computations
+			StdDraw.show(0); 									// Consider this during long computations
 		}
 		//StdDraw.show(0);										// Show the new drawing (Neccesary to keep computing time low)
 	}
